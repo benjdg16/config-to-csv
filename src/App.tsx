@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
 	ThemeProvider,
 	CssBaseline,
@@ -7,153 +7,98 @@ import {
 	Typography,
 	Box,
 } from "@mui/material";
-import { Download } from "@mui/icons-material";
-import { lightTheme, darkTheme } from "./theme";
+import type { ComponentConfig, ComponentData } from "./types";
+import { ConfigPanel } from "./components/ConfigPanel";
+import { ComponentsPanel } from "./components/ComponentsPanel";
+import { ResizablePanels } from "./components/ResizablePanels";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { useTheme } from "./hooks/useTheme";
 import { useLocalStorage } from "./hooks/useLocalStorage";
-import type { ConfigField, FormData, AppSettings } from "./types";
-import { parseConfig, generateConfigFromFields } from "./utils/configParser";
-import { exportToCSV } from "./utils/csvExporter";
-import ResizableLayout from "./components/ResizableLayout";
-import ConfigEditor from "./components/ConfigEditor";
-import ComponentRenderer from "./components/ComponentRenderer";
-import ThemeToggle from "./components/ThemeToggle";
+import { lightTheme, darkTheme } from "./theme";
 
-const DEFAULT_CONFIG = `textbox: Full Name
-textbox*: Email Address
-dropdown: Country | USA,Canada,UK,Australia
-dropdown*: Status | Active,Inactive`;
-
-const App: React.FC = () => {
-	// Local storage for settings
-	const [settings, setSettings] = useLocalStorage<AppSettings>(
-		"config-to-csv-settings",
-		{
-			darkMode: false,
-			removeHeaders: false,
-			fileName: "",
-		},
+function App() {
+	const { darkMode, toggleTheme } = useTheme();
+	const [removeHeaders, setRemoveHeaders] = useLocalStorage(
+		"config-to-csv-remove-headers",
+		false,
 	);
 
-	// State
-	const [config, setConfig] = useLocalStorage<string>(
-		"config-to-csv-config",
-		DEFAULT_CONFIG,
-	);
-	const [fields, setFields] = useState<ConfigField[]>([]);
-	const [formData, setFormData] = useState<FormData[]>([]);
-	const [currentRow, setCurrentRow] = useState<FormData>({});
+	const [components, setComponents] = useState<ComponentConfig[]>([]);
+	const [data, setData] = useState<ComponentData[][]>([]);
+	const [fileName, setFileName] = useState("");
 
-	const toggleDarkMode = () => {
-		setSettings((prev) => ({ ...prev, darkMode: !prev.darkMode }));
+	const handleGenerate = (newComponents: ComponentConfig[]) => {
+		setComponents(newComponents);
+		setData([]); // Clear existing data when regenerating components
 	};
 
-	const handleFileNameChange = (fileName: string) => {
-		setSettings((prev) => ({ ...prev, fileName }));
-	};
-
-	const handleRemoveHeadersChange = (removeHeaders: boolean) => {
-		setSettings((prev) => ({ ...prev, removeHeaders }));
-	};
-
-	const handleGenerate = useCallback(() => {
-		const parsedFields = parseConfig(config);
-		setFields(parsedFields);
-
-		// Initialize current row
-		const initialRow: FormData = {};
-		parsedFields.forEach((field) => {
-			initialRow[field.id] = "";
-		});
-		setCurrentRow(initialRow);
-
-		// Clear existing data
-		setFormData([]);
-	}, [config]);
-
-	const handleFieldChange = useCallback((fieldId: string, value: string) => {
-		setCurrentRow((prev) => ({
-			...prev,
-			[fieldId]: value,
+	const handleAddRow = () => {
+		const newRow = components.map((comp) => ({
+			id: comp.id,
+			value: "",
 		}));
-	}, []);
+		setData((prev) => [...prev, newRow]);
+	};
 
-	const handleAddRow = useCallback(() => {
-		setFormData((prev) => [...prev, { ...currentRow }]);
+	const handleDeleteRow = (rowIndex: number) => {
+		setData((prev) => prev.filter((_, index) => index !== rowIndex));
+	};
 
-		// Reset current row
-		const resetRow: FormData = {};
-		fields.forEach((field) => {
-			resetRow[field.id] = "";
+	const handleDataChange = (rowIndex: number, id: string, value: string) => {
+		setData((prev) => {
+			const newData = [...prev];
+			const existingItem = newData[rowIndex].find((item) => item.id === id);
+
+			if (existingItem) {
+				existingItem.value = value;
+			} else {
+				newData[rowIndex].push({ id, value });
+			}
+
+			return newData;
 		});
-		setCurrentRow(resetRow);
-	}, [currentRow, fields]);
+	};
 
-	const handleDeleteRow = useCallback((index: number) => {
-		setFormData((prev) => prev.filter((_, i) => i !== index));
-	}, []);
+	const leftPanel = (
+		<ConfigPanel
+			fileName={fileName}
+			onFileNameChange={setFileName}
+			onGenerate={handleGenerate}
+		/>
+	);
 
-	const handleSave = useCallback(() => {
-		const fileName = settings.fileName || `config-to-csv_${Date.now()}`;
-		exportToCSV(fields, formData, fileName, settings.removeHeaders);
-	}, [fields, formData, settings.fileName, settings.removeHeaders]);
-
-	const handleCancel = useCallback(() => {
-		setFields([]);
-		setFormData([]);
-		setCurrentRow({});
-	}, []);
-
-	const handleEditConfig = useCallback(() => {
-		const newConfig = generateConfigFromFields(fields);
-		setConfig(newConfig);
-	}, [fields, setConfig]);
+	const rightPanel = (
+		<ComponentsPanel
+			components={components}
+			data={data}
+			removeHeaders={removeHeaders}
+			fileName={fileName}
+			onDataChange={handleDataChange}
+			onAddRow={handleAddRow}
+			onDeleteRow={handleDeleteRow}
+			onRemoveHeadersChange={setRemoveHeaders}
+		/>
+	);
 
 	return (
-		<ThemeProvider theme={settings.darkMode ? darkTheme : lightTheme}>
+		<ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
 			<CssBaseline />
-
 			<Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
 				<AppBar position="static" elevation={1}>
 					<Toolbar>
-						<Download sx={{ mr: 1 }} />
 						<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-							Config to CSV
+							Config-to-CSV Generator
 						</Typography>
-						<ThemeToggle
-							darkMode={settings.darkMode}
-							onToggle={toggleDarkMode}
-						/>
+						<ThemeToggle darkMode={darkMode} onToggle={toggleTheme} />
 					</Toolbar>
 				</AppBar>
 
-				<ResizableLayout
-					leftPanel={
-						<ConfigEditor
-							config={config}
-							fileName={settings.fileName}
-							removeHeaders={settings.removeHeaders}
-							onConfigChange={setConfig}
-							onFileNameChange={handleFileNameChange}
-							onRemoveHeadersChange={handleRemoveHeadersChange}
-							onGenerate={handleGenerate}
-						/>
-					}
-					rightPanel={
-						<ComponentRenderer
-							fields={fields}
-							onFieldChange={handleFieldChange}
-							onAddRow={handleAddRow}
-							onDeleteRow={handleDeleteRow}
-							onSave={handleSave}
-							onCancel={handleCancel}
-							data={formData}
-							onEditConfig={handleEditConfig}
-						/>
-					}
-				/>
+				<Box sx={{ flex: 1, overflow: "hidden" }}>
+					<ResizablePanels leftPanel={leftPanel} rightPanel={rightPanel} />
+				</Box>
 			</Box>
 		</ThemeProvider>
 	);
-};
+}
 
 export default App;

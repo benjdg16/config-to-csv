@@ -1,70 +1,42 @@
-import type { ConfigField, FormData, ValidationError } from "../types";
+import type { ComponentConfig, ComponentData } from "../types";
 
-export const validateFormData = (
-	fields: ConfigField[],
-	data: FormData,
-): ValidationError[] => {
-	const errors: ValidationError[] = [];
+export function validateRow(
+	data: ComponentData[],
+	components: ComponentConfig[],
+): { isValid: boolean; errors: Record<string, string> } {
+	const errors: Record<string, string> = {};
 
-	fields.forEach((field) => {
-		const value = data[field.id];
+	components.forEach((component) => {
+		const dataItem = data.find((d) => d.id === component.id);
+		const value = dataItem?.value || "";
 
-		if (field.required && (!value || value.trim() === "")) {
-			errors.push({
-				fieldId: field.id,
-				message: `${field.label} is required`,
-			});
+		if (component.required && !value.trim()) {
+			errors[component.id] = `${component.label} is required`;
 		}
 
-		if (
-			field.type === "dropdown" &&
-			value &&
-			field.options &&
-			!field.options.includes(value)
-		) {
-			errors.push({
-				fieldId: field.id,
-				message: `Invalid option selected for ${field.label}`,
-			});
+		if (component.type === "textbox" && value.length > 500) {
+			errors[component.id] =
+				`${component.label} must be less than 500 characters`;
 		}
 	});
 
-	return errors;
-};
+	return {
+		isValid: Object.keys(errors).length === 0,
+		errors,
+	};
+}
 
-export const validateConfig = (configText: string): string[] => {
-	const errors: string[] = [];
-	const lines = configText
-		.trim()
-		.split("\n")
-		.filter((line) => line.trim());
+export function validateFileName(fileName: string): string | null {
+	if (!fileName.trim()) return null;
 
-	if (lines.length === 0) {
-		errors.push("Config cannot be empty");
-		return errors;
+	const invalidChars = /[<>:"/\\|?*]/g;
+	if (invalidChars.test(fileName)) {
+		return "File name contains invalid characters";
 	}
 
-	lines.forEach((line, index) => {
-		const trimmedLine = line.trim().replace("*", "");
+	if (fileName.length > 255) {
+		return "File name is too long";
+	}
 
-		if (
-			!trimmedLine.toLowerCase().startsWith("textbox:") &&
-			!trimmedLine.toLowerCase().startsWith("dropdown:")
-		) {
-			errors.push(
-				`Line ${index + 1}: Must start with 'textbox:' or 'dropdown:'`,
-			);
-		}
-
-		if (trimmedLine.toLowerCase().startsWith("dropdown:")) {
-			const content = trimmedLine.substring(9).trim();
-			if (!content.includes("|")) {
-				errors.push(
-					`Line ${index + 1}: Dropdown must have options after '|' (e.g., 'dropdown: Name | option1,option2')`,
-				);
-			}
-		}
-	});
-
-	return errors;
-};
+	return null;
+}

@@ -1,16 +1,16 @@
 import React, { useState, useCallback } from "react";
-import { Box, Paper } from "@mui/material";
+import { Box } from "@mui/material";
 
-interface ResizableLayoutProps {
+interface ResizablePanelsProps {
 	leftPanel: React.ReactNode;
 	rightPanel: React.ReactNode;
 }
 
-const ResizableLayout: React.FC<ResizableLayoutProps> = ({
+export const ResizablePanels: React.FC<ResizablePanelsProps> = ({
 	leftPanel,
 	rightPanel,
 }) => {
-	const [leftWidth, setLeftWidth] = useState(50); // percentage
+	const [leftWidth, setLeftWidth] = useState(40); // percentage
 	const [isDragging, setIsDragging] = useState(false);
 
 	const handleMouseDown = useCallback(() => {
@@ -21,16 +21,13 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
 		(e: MouseEvent) => {
 			if (!isDragging) return;
 
-			const container = document.getElementById("resizable-container");
-			if (!container) return;
-
-			const containerRect = container.getBoundingClientRect();
-			const newLeftWidth =
-				((e.clientX - containerRect.left) / containerRect.width) * 100;
+			const containerWidth = window.innerWidth;
+			const newLeftWidth = (e.clientX / containerWidth) * 100;
 
 			// Constrain between 20% and 80%
-			const constrainedWidth = Math.min(80, Math.max(20, newLeftWidth));
-			setLeftWidth(constrainedWidth);
+			if (newLeftWidth >= 20 && newLeftWidth <= 80) {
+				setLeftWidth(newLeftWidth);
+			}
 		},
 		[isDragging],
 	);
@@ -45,63 +42,65 @@ const ResizableLayout: React.FC<ResizableLayoutProps> = ({
 			document.addEventListener("mouseup", handleMouseUp);
 			document.body.style.cursor = "col-resize";
 			document.body.style.userSelect = "none";
-		}
 
-		return () => {
-			document.removeEventListener("mousemove", handleMouseMove);
-			document.removeEventListener("mouseup", handleMouseUp);
-			document.body.style.cursor = "";
-			document.body.style.userSelect = "";
-		};
+			return () => {
+				document.removeEventListener("mousemove", handleMouseMove);
+				document.removeEventListener("mouseup", handleMouseUp);
+				document.body.style.cursor = "";
+				document.body.style.userSelect = "";
+			};
+		}
 	}, [isDragging, handleMouseMove, handleMouseUp]);
 
 	return (
-		<Box
-			id="resizable-container"
-			sx={{
-				display: "flex",
-				height: "100vh",
-				overflow: "hidden",
-			}}
-		>
-			<Paper
-				elevation={1}
+		<Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+			{/* Left Panel */}
+			<Box
 				sx={{
 					width: `${leftWidth}%`,
-					display: "flex",
-					flexDirection: "column",
+					height: "100%",
 					overflow: "hidden",
+					p: 2,
 				}}
 			>
 				{leftPanel}
-			</Paper>
+			</Box>
 
+			{/* Resizer */}
 			<Box
-				onMouseDown={handleMouseDown}
 				sx={{
 					width: "4px",
+					height: "100%",
 					backgroundColor: "divider",
 					cursor: "col-resize",
+					position: "relative",
 					"&:hover": {
 						backgroundColor: "primary.main",
 					},
-					transition: "background-color 0.2s",
+					"&::after": {
+						content: '""',
+						position: "absolute",
+						top: 0,
+						left: "-4px",
+						right: "-4px",
+						bottom: 0,
+						cursor: "col-resize",
+					},
 				}}
+				onMouseDown={handleMouseDown}
 			/>
 
-			<Paper
-				elevation={1}
+			{/* Right Panel */}
+			<Box
 				sx={{
 					width: `${100 - leftWidth}%`,
-					display: "flex",
-					flexDirection: "column",
+					height: "100%",
 					overflow: "hidden",
+					p: 2,
 				}}
 			>
 				{rightPanel}
-			</Paper>
+			</Box>
 		</Box>
 	);
 };
-
-export default ResizableLayout;

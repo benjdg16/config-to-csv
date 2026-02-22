@@ -1,23 +1,26 @@
-export interface ConfigField {
+export interface ComponentConfig {
 	id: string;
 	type: "textbox" | "dropdown";
 	label: string;
 	options?: string[];
 	required?: boolean;
-	value?: string;
 }
 
-export interface FormData {
-	[key: string]: string;
+export interface ComponentData {
+	id: string;
+	value: string;
+	error?: string;
 }
 
-export interface ValidationError {
-	fieldId: string;
-	message: string;
-}
-
-export interface AppSettings {
-	darkMode: boolean;
-	removeHeaders: boolean;
+export interface AppState {
+	components: ComponentConfig[];
+	data: ComponentData[][];
 	fileName: string;
+	removeHeaders: boolean;
+	darkMode: boolean;
+}
+
+export interface ValidationResult {
+	isValid: boolean;
+	errors: string[];
 }

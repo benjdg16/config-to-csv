@@ -1,40 +1,36 @@
-import type { ConfigField, FormData } from "../types";
+import type { ComponentConfig, ComponentData } from "../types";
 
-export const exportToCSV = (
-	fields: ConfigField[],
-	dataRows: FormData[],
+export function exportToCSV(
+	data: ComponentData[][],
+	components: ComponentConfig[],
 	fileName: string,
 	removeHeaders: boolean = false,
-): void => {
-	if (dataRows.length === 0) {
+): void {
+	if (data.length === 0) {
 		alert("No data to export");
 		return;
 	}
 
-	const headers = fields.map((field) => field.label);
-	const csvContent: string[] = [];
+	const headers = components.map((comp) => comp.label);
+	const rows: string[][] = [];
 
-	// Add headers if not removing them
 	if (!removeHeaders) {
-		csvContent.push(headers.join(","));
+		rows.push(headers);
 	}
 
-	// Add data rows
-	dataRows.forEach((row) => {
-		const rowData = fields.map((field) => {
-			const value = row[field.id] || "";
-			// Escape quotes and wrap in quotes if contains comma or quote
-			if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-				return `"${value.replace(/"/g, '""')}"`;
-			}
-			return value;
+	data.forEach((rowData) => {
+		const row = components.map((comp) => {
+			const item = rowData.find((d) => d.id === comp.id);
+			return item?.value || "";
 		});
-		csvContent.push(rowData.join(","));
+		rows.push(row);
 	});
 
-	// Create and download file
-	const csvString = csvContent.join("\n");
-	const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+	const csvContent = rows
+		.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","))
+		.join("\n");
+
+	const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
 	const link = document.createElement("a");
 
 	if (link.download !== undefined) {
@@ -49,4 +45,4 @@ export const exportToCSV = (
 		link.click();
 		document.body.removeChild(link);
 	}
-};
+}
