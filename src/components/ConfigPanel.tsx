@@ -86,7 +86,7 @@ dropdown: Department, Sales, Marketing, IT, HR`;
 					component:
 				</Typography>
 
-				<Box sx={{ mb: 2, p: 2, bgcolor: "grey.100", borderRadius: 1 }}>
+				<Box sx={{ mb: 2, p: 2, borderRadius: 1 }}>
 					<Typography variant="caption" display="block" gutterBottom>
 						<strong>Examples:</strong>
 					</Typography>
