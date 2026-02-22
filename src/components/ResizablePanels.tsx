@@ -10,7 +10,7 @@ export const ResizablePanels: React.FC<ResizablePanelsProps> = ({
 	leftPanel,
 	rightPanel,
 }) => {
-	const [leftWidth, setLeftWidth] = useState(40); // percentage
+	const [leftWidth, setLeftWidth] = useState(30); // percentage
 	const [isDragging, setIsDragging] = useState(false);
 
 	const handleMouseDown = useCallback(() => {
@@ -24,8 +24,8 @@ export const ResizablePanels: React.FC<ResizablePanelsProps> = ({
 			const containerWidth = window.innerWidth;
 			const newLeftWidth = (e.clientX / containerWidth) * 100;
 
-			// Constrain between 20% and 80%
-			if (newLeftWidth >= 20 && newLeftWidth <= 80) {
+			// Constrain between 25% and 75%
+			if (newLeftWidth >= 25 && newLeftWidth <= 75) {
 				setLeftWidth(newLeftWidth);
 			}
 		},
@@ -53,13 +53,18 @@ export const ResizablePanels: React.FC<ResizablePanelsProps> = ({
 	}, [isDragging, handleMouseMove, handleMouseUp]);
 
 	return (
-		<Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+		<Box
+			sx={{
+				display: "flex",
+				height: "100%",
+				overflow: "hidden",
+			}}
+		>
 			{/* Left Panel */}
 			<Box
 				sx={{
 					width: `${leftWidth}%`,
 					height: "100%",
-					overflow: "hidden",
 					p: 2,
 				}}
 			>
@@ -77,15 +82,6 @@ export const ResizablePanels: React.FC<ResizablePanelsProps> = ({
 					"&:hover": {
 						backgroundColor: "primary.main",
 					},
-					"&::after": {
-						content: '""',
-						position: "absolute",
-						top: 0,
-						left: "-4px",
-						right: "-4px",
-						bottom: 0,
-						cursor: "col-resize",
-					},
 				}}
 				onMouseDown={handleMouseDown}
 			/>
@@ -95,7 +91,6 @@ export const ResizablePanels: React.FC<ResizablePanelsProps> = ({
 				sx={{
 					width: `${100 - leftWidth}%`,
 					height: "100%",
-					overflow: "hidden",
 					p: 2,
 				}}
 			>

@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import {
 	Box,
-	Card,
-	CardContent,
 	TextField,
 	Button,
 	Typography,
@@ -46,8 +44,22 @@ textbox: Email Address
 dropdown: Department, Sales, Marketing, IT, HR`;
 
 	return (
-		<Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-			<CardContent sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+		<Box
+			sx={{
+				height: "100%",
+				display: "flex",
+				flexDirection: "column",
+			}}
+		>
+			{/* Scrollable Content */}
+			<Box
+				sx={{
+					flexGrow: 1,
+					overflowY: "auto",
+					display: "flex",
+					flexDirection: "column",
+				}}
+			>
 				<Typography variant="h6" gutterBottom>
 					Configuration Panel
 				</Typography>
@@ -96,6 +108,7 @@ dropdown: Department, Sales, Marketing, IT, HR`;
 					fullWidth
 					sx={{ mb: 2, flex: 1 }}
 					helperText="Format: 'textbox: Label' or 'dropdown: Label, Option1, Option2, Option3'"
+					size="small"
 				/>
 
 				{errors.length > 0 && (
@@ -110,7 +123,10 @@ dropdown: Department, Sales, Marketing, IT, HR`;
 						))}
 					</Alert>
 				)}
+			</Box>
 
+			{/* Footer */}
+			<Box sx={{ pt: 2 }}>
 				<Button
 					variant="contained"
 					onClick={handleGenerate}
@@ -120,7 +136,7 @@ dropdown: Department, Sales, Marketing, IT, HR`;
 				>
 					Generate Components
 				</Button>
-			</CardContent>
-		</Card>
+			</Box>
+		</Box>
 	);
 };
