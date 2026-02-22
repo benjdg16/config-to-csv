@@ -94,132 +94,130 @@ export const ComponentsPanel: React.FC<ComponentsPanelProps> = ({
 	}
 
 	return (
-		<Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-			<CardContent sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-				<Box
-					sx={{
-						display: "flex",
-						justifyContent: "space-between",
-						alignItems: "center",
-						mb: 2,
-					}}
-				>
-					<Typography variant="h6">Dynamic Form Components</Typography>
-					<Button variant="contained" startIcon={<Add />} onClick={onAddRow}>
-						Add Row
-					</Button>
-				</Box>
+		<Box
+			sx={{
+				height: "100%",
+				display: "flex",
+				flexDirection: "column",
+			}}
+		>
+			<Box
+				sx={{
+					display: "flex",
+					justifyContent: "space-between",
+					alignItems: "center",
+					mb: 2,
+				}}
+			>
+				<Typography variant="h6">Dynamic Form Components</Typography>
+				<Button variant="contained" startIcon={<Add />} onClick={onAddRow}>
+					Add Row
+				</Button>
+			</Box>
 
-				<Box sx={{ flex: 1, overflow: "auto", mb: 2 }}>
-					{data.length === 0 ? (
-						<Alert severity="info">
-							Click "Add Row" to start entering data
-						</Alert>
-					) : (
-						data.map((rowData, rowIndex) => (
-							<Card key={rowIndex} variant="outlined" sx={{ mb: 2 }}>
-								<CardContent>
+			<Box sx={{ flex: 1, overflow: "auto", mb: 2 }}>
+				{data.length === 0 ? (
+					<Alert severity="info">Click "Add Row" to start entering data</Alert>
+				) : (
+					data.map((rowData, rowIndex) => (
+						<Card key={rowIndex} variant="outlined" sx={{ mb: 2 }}>
+							<CardContent>
+								<Box
+									sx={{
+										display: "flex",
+										justifyContent: "between",
+										alignItems: "flex-start",
+										gap: 2,
+									}}
+								>
+									<Typography variant="subtitle2" sx={{ minWidth: 60 }}>
+										Row {rowIndex + 1}
+									</Typography>
+
 									<Box
 										sx={{
 											display: "flex",
-											justifyContent: "between",
-											alignItems: "flex-start",
 											gap: 2,
+											flex: 1,
+											flexWrap: "wrap",
 										}}
 									>
-										<Typography variant="subtitle2" sx={{ minWidth: 60 }}>
-											Row {rowIndex + 1}
-										</Typography>
+										{components.map((component) => {
+											const dataItem = rowData.find(
+												(d) => d.id === component.id,
+											) || { id: component.id, value: "" };
+											const error = validationErrors[rowIndex]?.[component.id];
 
-										<Box
-											sx={{
-												display: "flex",
-												gap: 2,
-												flex: 1,
-												flexWrap: "wrap",
-											}}
-										>
-											{components.map((component) => {
-												const dataItem = rowData.find(
-													(d) => d.id === component.id,
-												) || { id: component.id, value: "" };
-												const error =
-													validationErrors[rowIndex]?.[component.id];
-
-												return (
-													<Box
-														key={component.id}
-														sx={{ minWidth: 200, flex: 1 }}
-													>
-														{component.type === "textbox" ? (
-															<DynamicTextbox
-																config={component}
-																data={dataItem}
-																onChange={(id, value) =>
-																	onDataChange(rowIndex, id, value)
-																}
-																error={error}
-															/>
-														) : (
-															<DynamicDropdown
-																config={component}
-																data={dataItem}
-																onChange={(id, value) =>
-																	onDataChange(rowIndex, id, value)
-																}
-																error={error}
-															/>
-														)}
-													</Box>
-												);
-											})}
-										</Box>
-
-										<IconButton
-											color="error"
-											onClick={() => onDeleteRow(rowIndex)}
-											size="small"
-										>
-											<Delete />
-										</IconButton>
+											return (
+												<Box key={component.id} sx={{ minWidth: 200, flex: 1 }}>
+													{component.type === "textbox" ? (
+														<DynamicTextbox
+															config={component}
+															data={dataItem}
+															onChange={(id, value) =>
+																onDataChange(rowIndex, id, value)
+															}
+															error={error}
+														/>
+													) : (
+														<DynamicDropdown
+															config={component}
+															data={dataItem}
+															onChange={(id, value) =>
+																onDataChange(rowIndex, id, value)
+															}
+															error={error}
+														/>
+													)}
+												</Box>
+											);
+										})}
 									</Box>
-								</CardContent>
-							</Card>
-						))
-					)}
-				</Box>
 
-				<Divider sx={{ my: 2 }} />
+									<IconButton
+										color="error"
+										onClick={() => onDeleteRow(rowIndex)}
+										size="small"
+									>
+										<Delete />
+									</IconButton>
+								</Box>
+							</CardContent>
+						</Card>
+					))
+				)}
+			</Box>
 
-				<Box
-					sx={{
-						display: "flex",
-						justifyContent: "space-between",
-						alignItems: "center",
-					}}
+			<Divider sx={{ my: 2 }} />
+
+			<Box
+				sx={{
+					display: "flex",
+					justifyContent: "space-between",
+					alignItems: "center",
+				}}
+			>
+				<FormControlLabel
+					control={
+						<Checkbox
+							checked={removeHeaders}
+							onChange={(e) => onRemoveHeadersChange(e.target.checked)}
+						/>
+					}
+					label="Remove headers from CSV download"
+				/>
+
+				<Button
+					variant="contained"
+					color="primary"
+					startIcon={<Download />}
+					onClick={handleDownload}
+					disabled={data.length === 0}
+					size="large"
 				>
-					<FormControlLabel
-						control={
-							<Checkbox
-								checked={removeHeaders}
-								onChange={(e) => onRemoveHeadersChange(e.target.checked)}
-							/>
-						}
-						label="Remove headers from CSV download"
-					/>
-
-					<Button
-						variant="contained"
-						color="primary"
-						startIcon={<Download />}
-						onClick={handleDownload}
-						disabled={data.length === 0}
-						size="large"
-					>
-						Download CSV
-					</Button>
-				</Box>
-			</CardContent>
-		</Card>
+					Download CSV
+				</Button>
+			</Box>
+		</Box>
 	);
 };
