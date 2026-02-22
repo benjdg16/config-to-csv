@@ -12,14 +12,13 @@ import {
 	Divider,
 } from "@mui/material";
 import { Add, Delete, Download } from "@mui/icons-material";
-import type { ComponentConfig, ComponentData } from "../types";
+import type { ComponentData } from "../types";
 import { DynamicTextbox } from "./DynamicTextbox";
 import { DynamicDropdown } from "./DynamicDropdown";
-import { validateRow } from "../utils/validation";
 import { exportToCSV } from "../utils/csvExporter";
 
 interface ComponentsPanelProps {
-	components: ComponentConfig[];
+	hasValidConfig: boolean;
 	data: ComponentData[][];
 	removeHeaders: boolean;
 	fileName: string;
@@ -30,7 +29,7 @@ interface ComponentsPanelProps {
 }
 
 export const ComponentsPanel: React.FC<ComponentsPanelProps> = ({
-	components,
+	hasValidConfig,
 	data,
 	removeHeaders,
 	fileName,
@@ -39,25 +38,25 @@ export const ComponentsPanel: React.FC<ComponentsPanelProps> = ({
 	onDeleteRow,
 	onRemoveHeadersChange,
 }) => {
-	const [validationErrors, setValidationErrors] = React.useState<
-		Record<number, Record<string, string>>
-	>({});
+	// const [validationErrors, setValidationErrors] = React.useState<
+	// 	Record<number, Record<string, string>>
+	// >({});
 
-	const validateAllRows = () => {
-		const errors: Record<number, Record<string, string>> = {};
-		let hasErrors = false;
+	// const validateAllRows = () => {
+	// 	const errors: Record<number, Record<string, string>> = {};
+	// 	let hasErrors = false;
 
-		data.forEach((rowData, index) => {
-			const validation = validateRow(rowData, components);
-			if (!validation.isValid) {
-				errors[index] = validation.errors;
-				hasErrors = true;
-			}
-		});
+	// 	data.forEach((rowData, index) => {
+	// 		const validation = validateRow(rowData, components);
+	// 		if (!validation.isValid) {
+	// 			errors[index] = validation.errors;
+	// 			hasErrors = true;
+	// 		}
+	// 	});
 
-		setValidationErrors(errors);
-		return !hasErrors;
-	};
+	// 	setValidationErrors(errors);
+	// 	return !hasErrors;
+	// };
 
 	const handleDownload = () => {
 		if (data.length === 0) {
@@ -65,16 +64,16 @@ export const ComponentsPanel: React.FC<ComponentsPanelProps> = ({
 			return;
 		}
 
-		if (!validateAllRows()) {
-			alert("Please fix all validation errors before downloading.");
-			return;
-		}
+		// if (!validateAllRows()) {
+		// 	alert("Please fix all validation errors before downloading.");
+		// 	return;
+		// }
 
 		const finalFileName = fileName.trim() || `config-to-csv_${Date.now()}`;
-		exportToCSV(data, components, finalFileName, removeHeaders);
+		exportToCSV(data, finalFileName, removeHeaders);
 	};
 
-	if (components.length === 0) {
+	if (!hasValidConfig) {
 		return (
 			<Card sx={{ height: "100%" }}>
 				<CardContent
@@ -142,31 +141,22 @@ export const ComponentsPanel: React.FC<ComponentsPanelProps> = ({
 											flexWrap: "wrap",
 										}}
 									>
-										{components.map((component) => {
-											const dataItem = rowData.find(
-												(d) => d.id === component.id,
-											) || { id: component.id, value: "" };
-											const error = validationErrors[rowIndex]?.[component.id];
-
+										{rowData.map((data) => {
 											return (
-												<Box key={component.id} sx={{ minWidth: 200, flex: 1 }}>
-													{component.type === "textbox" ? (
+												<Box key={data.id} sx={{ minWidth: 200, flex: 1 }}>
+													{data.type === "textbox" ? (
 														<DynamicTextbox
-															config={component}
-															data={dataItem}
+															data={data}
 															onChange={(id, value) =>
 																onDataChange(rowIndex, id, value)
 															}
-															error={error}
 														/>
 													) : (
 														<DynamicDropdown
-															config={component}
-															data={dataItem}
+															data={data}
 															onChange={(id, value) =>
 																onDataChange(rowIndex, id, value)
 															}
-															error={error}
 														/>
 													)}
 												</Box>

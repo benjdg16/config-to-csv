@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	ThemeProvider,
 	CssBaseline,
@@ -15,6 +15,7 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { useTheme } from "./hooks/useTheme";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { lightTheme, darkTheme } from "./theme";
+import { generateComponentId } from "./utils/helper";
 
 function App() {
 	const { darkMode, toggleTheme } = useTheme();
@@ -23,23 +24,35 @@ function App() {
 		false,
 	);
 
-	const [components, setComponents] = useState<ComponentConfig[]>([]);
+	const [components, setComponents] = useState<ComponentConfig[]>([]); // Blueprint for dynamic components
 	const [data, setData] = useState<ComponentData[][]>([]);
 	const [fileName, setFileName] = useState("");
 
 	const handleGenerate = (newComponents: ComponentConfig[]) => {
 		setComponents(newComponents);
 		setData([]); // Clear existing data when regenerating components
+		// TODO Add warning
 	};
 
 	const handleAddRow = () => {
-		const newRow = components.map((comp) => ({
-			id: comp.id,
+		// Note: Use `components` as a factory for new rows
+		const newRow: ComponentData[] = components.map((comp, index) => ({
+			...comp,
+			id: generateComponentId(comp.type, index), // Unique ID for each row item
+			componentId: comp.id, // Link to ComponentConfig
 			value: "",
+			error: undefined,
 		}));
 		setData((prev) => [...prev, newRow]);
 	};
 
+	useEffect(() => {
+		console.log(`components`, components);
+	}, [components]);
+
+	useEffect(() => {
+		console.log(`	data`, data);
+	}, [data]);
 	const handleDeleteRow = (rowIndex: number) => {
 		setData((prev) => prev.filter((_, index) => index !== rowIndex));
 	};
@@ -52,7 +65,14 @@ function App() {
 			if (existingItem) {
 				existingItem.value = value;
 			} else {
-				newData[rowIndex].push({ id, value });
+				newData[rowIndex].push({
+					id,
+					value,
+					componentId: "",
+					type: "textbox",
+					label: "",
+					required: false,
+				});
 			}
 
 			return newData;
@@ -69,7 +89,7 @@ function App() {
 
 	const rightPanel = (
 		<ComponentsPanel
-			components={components}
+			hasValidConfig={components.length > 0}
 			data={data}
 			removeHeaders={removeHeaders}
 			fileName={fileName}

@@ -1,31 +1,27 @@
 import React from "react";
 import { TextField, Box } from "@mui/material";
-import type { ComponentConfig, ComponentData } from "../types";
+import type { ComponentData } from "../types";
 
 interface DynamicTextboxProps {
-	config: ComponentConfig;
 	data: ComponentData;
 	onChange: (id: string, value: string) => void;
-	error?: string;
 }
 
 export const DynamicTextbox: React.FC<DynamicTextboxProps> = ({
-	config,
 	data,
 	onChange,
-	error,
 }) => {
 	return (
 		<Box sx={{ minWidth: 200, flex: 1 }}>
 			<TextField
 				fullWidth
 				size="small"
-				label={config.label}
+				label={data.label}
 				value={data.value || ""}
-				onChange={(e) => onChange(config.id, e.target.value)}
-				required={config.required}
-				error={!!error}
-				helperText={error}
+				onChange={(e) => onChange(data.id, e.target.value)}
+				required={data.required}
+				error={!!data.error}
+				helperText={data.error}
 				variant="outlined"
 			/>
 		</Box>

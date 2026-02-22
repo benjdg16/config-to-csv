@@ -1,4 +1,5 @@
 import type { ComponentConfig, ValidationResult } from "../types";
+import { generateComponentId } from "./helper";
 
 export function parseConfig(
 	configText: string,
@@ -37,7 +38,7 @@ export function parseConfig(
 
 		if (type.toLowerCase() === "textbox") {
 			components.push({
-				id: `textbox-${Date.now()}-${index}`,
+				id: generateComponentId("textbox", index),
 				type: "textbox",
 				label: content,
 				required: true,
@@ -53,7 +54,7 @@ export function parseConfig(
 
 			const [label, ...options] = parts;
 			components.push({
-				id: `dropdown-${Date.now()}-${index}`,
+				id: generateComponentId("dropdown", index),
 				type: "dropdown",
 				label,
 				options: options.filter((opt) => opt.length > 0),

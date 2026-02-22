@@ -1,8 +1,7 @@
-import type { ComponentConfig, ComponentData } from "../types";
+import type { ComponentData } from "../types";
 
 export function exportToCSV(
 	data: ComponentData[][],
-	components: ComponentConfig[],
 	fileName: string,
 	removeHeaders: boolean = false,
 ): void {
@@ -11,7 +10,7 @@ export function exportToCSV(
 		return;
 	}
 
-	const headers = components.map((comp) => comp.label);
+	const headers = data[0].map((rowData) => rowData.label);
 	const rows: string[][] = [];
 
 	if (!removeHeaders) {
@@ -19,11 +18,8 @@ export function exportToCSV(
 	}
 
 	data.forEach((rowData) => {
-		const row = components.map((comp) => {
-			const item = rowData.find((d) => d.id === comp.id);
-			return item?.value || "";
-		});
-		rows.push(row);
+		const rowValues = rowData.map((item) => item.value);
+		rows.push(rowValues);
 	});
 
 	const csvContent = rows
