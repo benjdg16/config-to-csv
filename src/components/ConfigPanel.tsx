@@ -10,6 +10,8 @@ import {
 import type { ComponentConfig } from "../types";
 import { parseConfig } from "../utils/configParser";
 import { validateFileName } from "../utils/validation";
+import CopyButton from "./CopyPaste";
+import { CONFIG_PANEL_TEXTAREA_ID } from "../utils/constants";
 
 interface ConfigPanelProps {
 	fileName: string;
@@ -98,16 +100,19 @@ dropdown: Priority: Low, Medium, High`;
 				</Box>
 
 				<TextField
+					id={CONFIG_PANEL_TEXTAREA_ID}
 					multiline
 					rows={10}
-					placeholder="Enter your configuration here..."
+					placeholder={`Enter your configuration here...`}
 					value={configText}
 					onChange={(e) => setConfigText(e.target.value)}
 					fullWidth
-					sx={{ mb: 2, flex: 1 }}
-					helperText="Format: 'textbox: Label' or 'dropdown: Label, Option1, Option2, Option3'"
+					sx={{ mb: 2 }}
 					size="small"
 				/>
+				<Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+					<CopyButton targetId={CONFIG_PANEL_TEXTAREA_ID} />
+				</Box>
 
 				{errors.length > 0 && (
 					<Alert severity="error" sx={{ mb: 2 }}>
