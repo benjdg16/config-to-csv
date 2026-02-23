@@ -7,10 +7,7 @@ interface DynamicTextboxProps {
 	onChange: (id: string, value: string) => void;
 }
 
-export const DynamicTextbox: React.FC<DynamicTextboxProps> = ({
-	data,
-	onChange,
-}) => {
+const DynamicTextbox: React.FC<DynamicTextboxProps> = ({ data, onChange }) => {
 	return (
 		<Box sx={{ minWidth: 200, flex: 1 }}>
 			<TextField
@@ -27,3 +24,5 @@ export const DynamicTextbox: React.FC<DynamicTextboxProps> = ({
 		</Box>
 	);
 };
+
+export default DynamicTextbox;

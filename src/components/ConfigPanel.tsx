@@ -19,7 +19,7 @@ interface ConfigPanelProps {
 	onGenerate: (components: ComponentConfig[], noOfRows: number) => void;
 }
 
-export const ConfigPanel: React.FC<ConfigPanelProps> = ({
+const ConfigPanel: React.FC<ConfigPanelProps> = ({
 	fileName,
 	onFileNameChange,
 	onGenerate,
@@ -152,3 +152,5 @@ dropdown: Priority: Low, Medium, High`;
 		</Box>
 	);
 };
+
+export default ConfigPanel;

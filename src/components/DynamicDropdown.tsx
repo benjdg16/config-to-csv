@@ -14,7 +14,7 @@ interface DynamicDropdownProps {
 	onChange: (id: string, value: string) => void;
 }
 
-export const DynamicDropdown: React.FC<DynamicDropdownProps> = ({
+const DynamicDropdown: React.FC<DynamicDropdownProps> = ({
 	data,
 	onChange,
 }) => {
@@ -42,3 +42,5 @@ export const DynamicDropdown: React.FC<DynamicDropdownProps> = ({
 		</Box>
 	);
 };
+
+export default DynamicDropdown;

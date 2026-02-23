@@ -8,14 +8,16 @@ import {
 	Box,
 } from "@mui/material";
 import type { ComponentConfig, ComponentData } from "./types";
-import { ConfigPanel } from "./components/ConfigPanel";
-import { ComponentsPanel } from "./components/ComponentsPanel";
-import { ResizablePanels } from "./components/ResizablePanels";
-import { ThemeToggle } from "./components/ThemeToggle";
+import ConfigPanel from "./components/ConfigPanel";
+import ComponentsPanel from "./components/ComponentsPanel";
+import ResizablePanels from "./components/ResizablePanels";
+import ThemeToggle from "./components/ThemeToggle";
 import { useTheme } from "./hooks/useTheme";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { lightTheme, darkTheme } from "./theme";
 import { generateComponentId } from "./utils/helper";
+import { useConfirmationDialog } from "./hooks/useConfirmationDialog";
+import ConfirmationDialog from "./components/ConfirmationDialog";
 
 function App() {
 	const { darkMode, toggleTheme } = useTheme();
@@ -23,6 +25,8 @@ function App() {
 		"config-to-csv-remove-headers",
 		false,
 	);
+	const { open, options, confirm, handleConfirm, handleCancel } =
+		useConfirmationDialog();
 
 	const [components, setComponents] = useState<ComponentConfig[]>([]); // Blueprint for dynamic components
 	const [data, setData] = useState<ComponentData[][]>([]);
@@ -52,15 +56,23 @@ function App() {
 		}
 	};
 
-	const handleGenerate = (
+	const handleGenerate = async (
 		newComponents: ComponentConfig[],
 		noOfRows: number,
 	) => {
+		if (components.length > 0 || data.length > 0) {
+			const confirmed = await confirm({
+				title: "Overwrite existing data?",
+				description: "Generating will overwrite existing data. Continue?",
+				confirmText: "Overwrite",
+			});
+			if (!confirmed) return;
+		}
+
 		setComponents(newComponents);
 		// Note: We are just about to save the new configuration so the state is not updated yet.
 		// Use the parameters instead
 		addRows(newComponents, noOfRows, true);
-		// TODO Add warning
 	};
 
 	const handleAddRow = () => {
@@ -132,6 +144,12 @@ function App() {
 					<ResizablePanels leftPanel={leftPanel} rightPanel={rightPanel} />
 				</Box>
 			</Box>
+			<ConfirmationDialog
+				open={open}
+				options={options}
+				onConfirm={handleConfirm}
+				onCancel={handleCancel}
+			/>
 		</ThemeProvider>
 	);
 }

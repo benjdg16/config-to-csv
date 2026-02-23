@@ -7,10 +7,7 @@ interface ThemeToggleProps {
 	onToggle: () => void;
 }
 
-export const ThemeToggle: React.FC<ThemeToggleProps> = ({
-	darkMode,
-	onToggle,
-}) => {
+const ThemeToggle: React.FC<ThemeToggleProps> = ({ darkMode, onToggle }) => {
 	return (
 		<Tooltip title={`Switch to ${darkMode ? "light" : "dark"} mode`}>
 			<IconButton onClick={onToggle} color="inherit">
@@ -19,3 +16,5 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
 		</Tooltip>
 	);
 };
+
+export default ThemeToggle;

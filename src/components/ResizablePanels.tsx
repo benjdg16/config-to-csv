@@ -6,7 +6,7 @@ interface ResizablePanelsProps {
 	rightPanel: React.ReactNode;
 }
 
-export const ResizablePanels: React.FC<ResizablePanelsProps> = ({
+const ResizablePanels: React.FC<ResizablePanelsProps> = ({
 	leftPanel,
 	rightPanel,
 }) => {
@@ -99,3 +99,5 @@ export const ResizablePanels: React.FC<ResizablePanelsProps> = ({
 		</Box>
 	);
 };
+
+export default ResizablePanels;

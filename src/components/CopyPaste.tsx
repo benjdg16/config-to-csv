@@ -7,7 +7,7 @@ interface CopyButtonProps {
 	targetId: string;
 }
 
-export default function CopyButton({ targetId }: CopyButtonProps) {
+const CopyButton = ({ targetId }: CopyButtonProps) => {
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = () => {
@@ -42,4 +42,6 @@ export default function CopyButton({ targetId }: CopyButtonProps) {
 			</span>
 		</Tooltip>
 	);
-}
+};
+
+export default CopyButton;

@@ -13,8 +13,8 @@ import {
 } from "@mui/material";
 import { Add, Delete, Download } from "@mui/icons-material";
 import type { ComponentData } from "../types";
-import { DynamicTextbox } from "./DynamicTextbox";
-import { DynamicDropdown } from "./DynamicDropdown";
+import DynamicTextbox from "./DynamicTextbox";
+import DynamicDropdown from "./DynamicDropdown";
 import { exportToCSV } from "../utils/csvExporter";
 
 interface ComponentsPanelProps {
@@ -28,7 +28,7 @@ interface ComponentsPanelProps {
 	onRemoveHeadersChange: (remove: boolean) => void;
 }
 
-export const ComponentsPanel: React.FC<ComponentsPanelProps> = ({
+const ComponentsPanel: React.FC<ComponentsPanelProps> = ({
 	hasValidConfig,
 	data,
 	removeHeaders,
@@ -181,3 +181,5 @@ export const ComponentsPanel: React.FC<ComponentsPanelProps> = ({
 		</Box>
 	);
 };
+
+export default ComponentsPanel;
