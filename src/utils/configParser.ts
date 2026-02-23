@@ -19,20 +19,19 @@ export function parseConfig(
 		const trimmedLine = line.trim();
 		if (!trimmedLine) return;
 
-		const parts = trimmedLine.split(":").map((p) => p.trim());
-
-		if (parts.length < 2) {
+		const firstColonIndex = trimmedLine.indexOf(":");
+		if (firstColonIndex === -1) {
 			errors.push(
-				`Line ${index + 1}: Invalid format. Use "type: label" or "dropdown: label, option1, option2"`,
+				`Line ${index + 1}: Invalid format. Use "textbox: label" or "dropdown: label: option1, option2"`,
 			);
 			return;
 		}
 
-		const [type, ...rest] = parts;
-		const content = rest.join(":").trim();
+		const type = trimmedLine.slice(0, firstColonIndex).trim();
+		const content = trimmedLine.slice(firstColonIndex + 1).trim();
 
 		if (!content) {
-			errors.push(`Line ${index + 1}: Missing label`);
+			errors.push(`Line ${index + 1}: Missing label/options`);
 			return;
 		}
 
@@ -44,20 +43,33 @@ export function parseConfig(
 				required: true,
 			});
 		} else if (type.toLowerCase() === "dropdown") {
-			const parts = content.split(",").map((p) => p.trim());
-			if (parts.length < 2) {
+			const secondColonIndex = content.indexOf(":");
+			if (secondColonIndex === -1) {
 				errors.push(
-					`Line ${index + 1}: Dropdown needs at least a label and one option`,
+					`Line ${index + 1}: Dropdown needs a label and options separated by ":"`,
 				);
 				return;
 			}
 
-			const [label, ...options] = parts;
+			const label = content.slice(0, secondColonIndex).trim();
+			const options = content
+				.slice(secondColonIndex + 1)
+				.split(",")
+				.map((p) => p.trim())
+				.filter((p) => p);
+
+			if (!label || options.length === 0) {
+				errors.push(
+					`Line ${index + 1}: Dropdown needs a label and at least one option`,
+				);
+				return;
+			}
+
 			components.push({
 				id: generateComponentId("dropdown", index),
 				type: "dropdown",
 				label,
-				options: options.filter((opt) => opt.length > 0),
+				options,
 				required: true,
 			});
 		} else {

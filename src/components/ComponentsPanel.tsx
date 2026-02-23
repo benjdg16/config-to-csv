@@ -38,37 +38,7 @@ export const ComponentsPanel: React.FC<ComponentsPanelProps> = ({
 	onDeleteRow,
 	onRemoveHeadersChange,
 }) => {
-	// const [validationErrors, setValidationErrors] = React.useState<
-	// 	Record<number, Record<string, string>>
-	// >({});
-
-	// const validateAllRows = () => {
-	// 	const errors: Record<number, Record<string, string>> = {};
-	// 	let hasErrors = false;
-
-	// 	data.forEach((rowData, index) => {
-	// 		const validation = validateRow(rowData, components);
-	// 		if (!validation.isValid) {
-	// 			errors[index] = validation.errors;
-	// 			hasErrors = true;
-	// 		}
-	// 	});
-
-	// 	setValidationErrors(errors);
-	// 	return !hasErrors;
-	// };
-
 	const handleDownload = () => {
-		if (data.length === 0) {
-			alert("No data to export. Please add some rows first.");
-			return;
-		}
-
-		// if (!validateAllRows()) {
-		// 	alert("Please fix all validation errors before downloading.");
-		// 	return;
-		// }
-
 		const finalFileName = fileName.trim() || `config-to-csv_${Date.now()}`;
 		exportToCSV(data, finalFileName, removeHeaders);
 	};

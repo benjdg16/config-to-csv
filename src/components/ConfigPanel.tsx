@@ -38,10 +38,8 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
 		}
 	};
 
-	const exampleConfig = `textbox: Full Name
-dropdown: Gender, Male, Female, Other
-textbox: Email Address
-dropdown: Department, Sales, Marketing, IT, HR`;
+	const exampleConfig = `textbox: Notes
+dropdown: Priority: Low, Medium, High`;
 
 	return (
 		<Box

@@ -7,17 +7,6 @@ export interface ComponentConfig {
 	options?: string[];
 }
 
-// export interface ComponentData {
-// 	id: string;
-//     type: "textbox" | "dropdown";
-//     label: string;
-//     required: boolean;
-//     options?: stringp
-// 	componentId: string; // Links to ComponentConfig.id
-// 	value: string;
-// 	error?: string;
-// }
-
 export interface ComponentData extends ComponentConfig {
 	componentId: string;
 	value: string;
