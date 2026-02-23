@@ -16,7 +16,7 @@ import { CONFIG_PANEL_TEXTAREA_ID } from "../utils/constants";
 interface ConfigPanelProps {
 	fileName: string;
 	onFileNameChange: (fileName: string) => void;
-	onGenerate: (components: ComponentConfig[]) => void;
+	onGenerate: (components: ComponentConfig[], noOfRows: number) => void;
 }
 
 export const ConfigPanel: React.FC<ConfigPanelProps> = ({
@@ -27,6 +27,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
 	const [configText, setConfigText] = useState("");
 	const [errors, setErrors] = useState<string[]>([]);
 	const [fileNameError, setFileNameError] = useState<string | null>(null);
+	const [noOfRows, setNoOfRows] = useState(1);
 
 	const handleGenerate = () => {
 		const fileError = validateFileName(fileName);
@@ -36,7 +37,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
 		setErrors(result.errors);
 
 		if (result.isValid && result.components && !fileError) {
-			onGenerate(result.components);
+			onGenerate(result.components, noOfRows);
 		}
 	};
 
@@ -129,7 +130,7 @@ dropdown: Priority: Low, Medium, High`;
 			</Box>
 
 			{/* Footer */}
-			<Box sx={{ pt: 2 }}>
+			<Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
 				<Button
 					variant="contained"
 					onClick={handleGenerate}
@@ -137,8 +138,16 @@ dropdown: Priority: Low, Medium, High`;
 					fullWidth
 					size="large"
 				>
-					Generate Components
+					Generate
 				</Button>
+				<TextField
+					type="number"
+					size="small"
+					sx={{ width: 100 }}
+					label="Rows"
+					value={noOfRows}
+					onChange={(e) => setNoOfRows(Number(e.target.value))}
+				/>
 			</Box>
 		</Box>
 	);

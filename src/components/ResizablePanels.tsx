@@ -24,8 +24,8 @@ export const ResizablePanels: React.FC<ResizablePanelsProps> = ({
 			const containerWidth = window.innerWidth;
 			const newLeftWidth = (e.clientX / containerWidth) * 100;
 
-			// Constrain between 25% and 75%
-			if (newLeftWidth >= 25 && newLeftWidth <= 75) {
+			// Constrain between 30% and 70%
+			if (newLeftWidth >= 30 && newLeftWidth <= 70) {
 				setLeftWidth(newLeftWidth);
 			}
 		},

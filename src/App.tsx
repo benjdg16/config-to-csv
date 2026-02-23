@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
 	ThemeProvider,
 	CssBaseline,
@@ -28,31 +28,46 @@ function App() {
 	const [data, setData] = useState<ComponentData[][]>([]);
 	const [fileName, setFileName] = useState("");
 
-	const handleGenerate = (newComponents: ComponentConfig[]) => {
+	const addRows = (
+		components: ComponentConfig[],
+		noOfRowsToAdd: number,
+		reset = false,
+	) => {
+		const rowsToAdd: ComponentData[][] = [];
+		for (let i = 0; i < noOfRowsToAdd; i++) {
+			const newRow: ComponentData[] = components.map((comp, index) => ({
+				...comp,
+				id: generateComponentId(comp.type, index), // Unique ID for each row item
+				componentId: comp.id, // Link to ComponentConfig
+				value: "",
+				error: undefined,
+			}));
+			rowsToAdd.push(newRow);
+		}
+
+		if (reset) {
+			setData(rowsToAdd);
+		} else {
+			setData((prev) => [...prev, ...rowsToAdd]);
+		}
+	};
+
+	const handleGenerate = (
+		newComponents: ComponentConfig[],
+		noOfRows: number,
+	) => {
 		setComponents(newComponents);
-		setData([]); // Clear existing data when regenerating components
+		// Note: We are just about to save the new configuration so the state is not updated yet.
+		// Use the parameters instead
+		addRows(newComponents, noOfRows, true);
 		// TODO Add warning
 	};
 
 	const handleAddRow = () => {
-		// Note: Use `components` as a factory for new rows
-		const newRow: ComponentData[] = components.map((comp, index) => ({
-			...comp,
-			id: generateComponentId(comp.type, index), // Unique ID for each row item
-			componentId: comp.id, // Link to ComponentConfig
-			value: "",
-			error: undefined,
-		}));
-		setData((prev) => [...prev, newRow]);
+		// Note: We know the configuration from state
+		addRows(components, 1);
 	};
 
-	useEffect(() => {
-		console.log(`components`, components);
-	}, [components]);
-
-	useEffect(() => {
-		console.log(`	data`, data);
-	}, [data]);
 	const handleDeleteRow = (rowIndex: number) => {
 		setData((prev) => prev.filter((_, index) => index !== rowIndex));
 	};
